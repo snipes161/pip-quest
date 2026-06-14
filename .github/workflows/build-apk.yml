@@ -1,8 +1,5 @@
 name: Build PIP-QUEST APK
 
-# Builds an installable Android APK in the cloud.
-# Runs automatically on every push, and can also be triggered by hand
-# from the Actions tab (the "Run workflow" button).
 on:
   push:
     branches: [ main, master ]
@@ -10,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest   # GitHub's Ubuntu runners ship with the Android SDK preinstalled
+    runs-on: ubuntu-latest
 
     steps:
       - name: Check out the project
@@ -27,13 +24,25 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Show environment and files
+        run: |
+          node --version
+          npm --version
+          echo "---- repo root ----"
+          ls -la
+          echo "---- www folder ----"
+          ls -la www || echo "NO www FOLDER FOUND"
+
       - name: Install npm dependencies
         run: npm install
 
-      # Create the native Android project from the Capacitor scaffold.
-      # "|| true" so a re-run doesn't fail if the android/ folder already exists.
       - name: Add Android platform
-        run: npx cap add android || true
+        run: |
+          if [ ! -d android ]; then
+            npx cap add android
+          else
+            echo "android/ already exists, skipping add"
+          fi
 
       - name: Sync web assets into the Android project
         run: npx cap sync android
@@ -42,7 +51,7 @@ jobs:
         run: chmod +x android/gradlew
 
       - name: Build debug APK
-        run: cd android && ./gradlew assembleDebug --no-daemon
+        run: cd android && ./gradlew assembleDebug --no-daemon --stacktrace
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
