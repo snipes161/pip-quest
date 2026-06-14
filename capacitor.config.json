@@ -1,0 +1,11 @@
+{
+  "appId": "com.pipquest.app",
+  "appName": "PIP-QUEST",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "backgroundColor": "#050a06"
+  }
+}
